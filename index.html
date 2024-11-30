@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google Calendar Sync</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <h1>Welcome to Google Calendar Sync</h1>
+
+  <button id="loginButton">Login with Google</button>
+  <p id="loginStatus" style="display: none;">You are logged in!</p>
+
+  <button id="fetchEvents" disabled>Fetch Google Calendar Events</button>
+
+  <div id="task-display"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const loginButton = document.getElementById('loginButton');
+      const fetchEventsButton = document.getElementById('fetchEvents');
+      const loginStatus = document.getElementById('loginStatus');
+      const eventsContainer = document.getElementById('task-display');
+
+      // Login with Google functionality
+      loginButton.addEventListener('click', function () {
+        window.location.href = 'https://umi-fpky.onrender.com/auth/google'; // Redirect to OAuth flow
+      });
+
+      // Check login status on page load
+      checkLoginStatus();
+
+      async function checkLoginStatus() {
+        try {
+          const response = await fetch('https://umi-fpky.onrender.com/auth/status');
+          if (response.ok) {
+            const data = await response.json();
+            if (data.loggedIn) {
+              loginStatus.style.display = 'block'; // Show login success message
+              fetchEventsButton.disabled = false; // Enable fetch events button
+            }
+          }
+        } catch (error) {
+          console.error('Error checking login status:', error);
+        }
+      }
+
+      // Fetch events functionality
+      fetchEventsButton.addEventListener('click', async function () {
+        try {
+          const response = await fetch('https://umi-fpky.onrender.com/events');
+          if (response.ok) {
+            const events = await response.json();
+            displayEvents(events);
+          } else {
+            console.error('Error fetching events:', response.status);
+          }
+        } catch (error) {
+          console.error('Error fetching calendar events:', error);
+        }
+      });
+
+      function displayEvents(events) {
+        const eventsContainer = document.getElementById('task-display');
+        eventsContainer.innerHTML = ''; // Clear previous content
+
+        const header = document.createElement('h2');
+        header.textContent = 'Upcoming Events:';
+        eventsContainer.appendChild(header);
+
+        if (Array.isArray(events) && events.length > 0) {
+          const eventsList = document.createElement('ul');
+          events.forEach((event) => {
+            const eventItem = document.createElement('li');
+            eventItem.textContent = `${event.summary} - ${new Date(
+              event.start.dateTime || event.start.date
+            ).toLocaleString()}`;
+            eventsList.appendChild(eventItem);
+          });
+          eventsContainer.appendChild(eventsList);
+        } else {
+          eventsContainer.innerHTML = '<p>No upcoming events found.</p>';
+        }
+      }
+    });
+  </script>
+
+</body>
+</html>
