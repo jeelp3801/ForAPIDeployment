@@ -13,7 +13,12 @@ const port = 3000;
 app.use(cors());
 
 // Serve static files for the frontend
-app.use(express.static(path.join(__dirname, '../')));
+//app.use(express.static(path.join(__dirname, '../')));
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(__dirname));  // Serve static files from the root folder
 
 // Set up OAuth2 client
 const oauth2Client = new google.auth.OAuth2(
