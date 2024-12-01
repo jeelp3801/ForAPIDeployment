@@ -1,88 +1,94 @@
-const express = require('express');
-const dotenv = require('dotenv');
-const request = require('request');
-const querystring = require('querystring');
-const cors = require('cors');
-
-dotenv.config();
+const express = require("express");
+const cors = require("cors");
+const axios = require("axios");
+const querystring = require("querystring");
+require("dotenv").config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
-const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
-const REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI;
+const PORT = process.env.PORT || 3001;
 
-let accessToken = '';
+// Spotify API credentials
+const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
+const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
+const REDIRECT_URI = "https://forapideployment.onrender.com/callback";
+let accessToken = "";
 
-app.get('/auth/spotify', (req, res) => {
-  const scopes = 'user-read-playback-state user-modify-playback-state';
+// 1. Redirect to Spotify login
+app.get("/login", (req, res) => {
+  const scope = "user-modify-playback-state user-read-playback-state";
   const authUrl = `https://accounts.spotify.com/authorize?${querystring.stringify({
-    response_type: 'code',
-    client_id: SPOTIFY_CLIENT_ID,
-    scope: scopes,
+    response_type: "code",
+    client_id: CLIENT_ID,
+    scope: scope,
     redirect_uri: REDIRECT_URI,
   })}`;
   res.redirect(authUrl);
 });
 
-app.get('/auth/spotify/callback', (req, res) => {
-  const code = req.query.code;
-
-  const options = {
-    url: 'https://accounts.spotify.com/api/token',
-    form: {
-      code,
-      redirect_uri: REDIRECT_URI,
-      grant_type: 'authorization_code',
-    },
-    headers: {
-      Authorization: `Basic ${Buffer.from(`${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`).toString('base64')}`,
-    },
-    json: true,
-  };
-
-  request.post(options, (error, response, body) => {
-    if (error || response.statusCode !== 200) {
-      console.error('Error authenticating Spotify:', error || body);
-      return res.status(500).send('Authentication failed.');
-    }
-    accessToken = body.access_token;
-    res.redirect('/music-page.html');
-  });
+// 2. Handle Spotify callback and exchange code for access token
+app.get("/callback", async (req, res) => {
+  const code = req.query.code || null;
+  try {
+    const response = await axios.post(
+      "https://accounts.spotify.com/api/token",
+      querystring.stringify({
+        code: code,
+        redirect_uri: REDIRECT_URI,
+        grant_type: "authorization_code",
+      }),
+      {
+        headers: {
+          Authorization:
+            "Basic " +
+            Buffer.from(CLIENT_ID + ":" + CLIENT_SECRET).toString("base64"),
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }
+    );
+    accessToken = response.data.access_token;
+    res.send("Login successful! You can now control music.");
+  } catch (error) {
+    console.error("Error exchanging code for token:", error.response?.data || error);
+    res.status(500).send("Failed to log in.");
+  }
 });
 
-app.post('/play', (req, res) => {
-  const options = {
-    url: 'https://api.spotify.com/v1/me/player/play',
-    headers: { Authorization: `Bearer ${accessToken}` },
-    json: true,
-  };
-
-  request.put(options, (error, response) => {
-    if (error || response.statusCode !== 204) {
-      console.error('Error playing music:', error || response.body);
-      return res.status(500).send('Error playing music.');
-    }
-    res.status(200).send('Music started.');
-  });
+// 3. Start music
+app.post("/start-music", async (req, res) => {
+  try {
+    if (!accessToken) return res.status(401).json({ error: "User not logged in." });
+    const trackUri = "spotify:track:3n3Ppam7vgaVa1iaRUc9Lp"; // Replace with your track URI
+    await axios.put(
+      "https://api.spotify.com/v1/me/player/play",
+      { uris: [trackUri] },
+      { headers: { Authorization: `Bearer ${accessToken}` } }
+    );
+    res.json({ message: "Music started!" });
+  } catch (error) {
+    console.error("Error starting music:", error.response?.data || error);
+    res.status(500).json({ error: "Failed to start music." });
+  }
 });
 
-app.post('/pause', (req, res) => {
-  const options = {
-    url: 'https://api.spotify.com/v1/me/player/pause',
-    headers: { Authorization: `Bearer ${accessToken}` },
-    json: true,
-  };
-
-  request.put(options, (error, response) => {
-    if (error || response.statusCode !== 204) {
-      console.error('Error pausing music:', error || response.body);
-      return res.status(500).send('Error pausing music.');
-    }
-    res.status(200).send('Music paused.');
-  });
+// 4. Stop music
+app.post("/stop-music", async (req, res) => {
+  try {
+    if (!accessToken) return res.status(401).json({ error: "User not logged in." });
+    await axios.put(
+      "https://api.spotify.com/v1/me/player/pause",
+      {},
+      { headers: { Authorization: `Bearer ${accessToken}` } }
+    );
+    res.json({ message: "Music stopped!" });
+  } catch (error) {
+    console.error("Error stopping music:", error.response?.data || error);
+    res.status(500).json({ error: "Failed to stop music." });
+  }
 });
 
-module.exports = app;
+app.listen(PORT, () => {
+  console.log(`Spotify backend running on port ${PORT}`);
+});
