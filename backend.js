@@ -16,11 +16,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
-// In spotify-backend.js or your main backend file
-app.get('/login', (req, res) => {
-  // You can either display a login page or start the Spotify OAuth process here
-  res.send('Login to Spotify');
-});
+
 
 const PORT = process.env.PORT || 3002;
 
