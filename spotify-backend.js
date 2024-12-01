@@ -16,7 +16,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Optional: Fallback to index.html for other routes
 app.get('/music', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'music.html'));  // Adjust based on your file structure
+  res.sendFile(path.join(__dirname, 'music.html'));  // Adjust based on your file structure
 });
 
 

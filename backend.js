@@ -36,13 +36,17 @@ app.get("/authorize-calendar", (req, res) => {
 });
 
 app.get('/callback-calendar', async (req, res) => {
-  console.log('Callback received:', req.query); // Log the query parameters to ensure the route is hit
-  const code = req.query.code;
+  console.log('Callback received:', req.query); // Log the query parameters to ensure it's being triggered
+  const code = req.query.code; // Extract the authorization code
   if (code) {
     try {
+      // Exchange the authorization code for an access token
       const { tokens } = await oauth2Client.getToken(code);
       oauth2Client.setCredentials(tokens);
-      res.send('Authorization successful!');
+      console.log('Tokens:', tokens); // Log the tokens to ensure they're received
+
+      // Here you can redirect the user to a different page after successful authorization
+      res.redirect('/'); // Redirect to a page after successful authorization
     } catch (error) {
       console.error('Error during OAuth callback:', error);
       res.send('Error during authorization.');
@@ -51,6 +55,7 @@ app.get('/callback-calendar', async (req, res) => {
     res.send('No authorization code found.');
   }
 });
+
 
 
 // 3. List Google Calendar events
