@@ -3,97 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Google Calendar Sync</title>
-  <link rel="stylesheet" href="styles.css">
+  <title>Home</title>
 </head>
 <body>
+  <h1>Welcome to the Productivity App</h1>
+  <button id="authorize-calendar">Authorize Google Calendar</button>
+  <button id="list-events">List Calendar Events</button>
+  <button id="go-to-music">Go to Music Page</button>
 
-  <h1>Welcome to Google Calendar Sync</h1>
-
-  <button id="loginButton">Login with Google</button>
-  <p id="loginStatus" style="display: none;">You are logged in!</p>
-
-  <button id="fetchEvents" disabled>Fetch Google Calendar Events</button>
-
-  <div id="task-display"></div>
-    <h1>Welcome to Google Calendar Sync</h1>
-    <button id="musicButton">Go to Spotify Music</button>
-    
-  </body>
-  
   <script>
-      document.getElementById('musicButton').addEventListener('click', () => {
-        window.location.href = 'music-page.html';
-      });
-    
-    document.addEventListener('DOMContentLoaded', function () {
-      const loginButton = document.getElementById('loginButton');
-      const fetchEventsButton = document.getElementById('fetchEvents');
-      const loginStatus = document.getElementById('loginStatus');
-      const eventsContainer = document.getElementById('task-display');
+    const API_URL = "https://forapideployment.onrender.com";
 
-      // Login with Google functionality
-      loginButton.addEventListener('click', function () {
-        window.location.href = 'https://forapideployment.onrender.com/auth/google'; // Redirect to OAuth flow
-      });
+    // Redirect to Google Calendar authorization
+    document.getElementById("authorize-calendar").addEventListener("click", () => {
+      window.location.href = `${API_URL}/authorize-calendar`;
+    });
 
-      // Check login status on page load
-      checkLoginStatus();
+    // Fetch and list Google Calendar events
+    document.getElementById("list-events").addEventListener("click", () => {
+      fetch(`${API_URL}/list-events`)
+        .then((response) => response.json())
+        .then((data) => {
+          alert(`Your events:\n${data.events.join("\n")}`);
+        })
+        .catch((error) => {
+          console.error("Error listing events:", error);
+          alert("Failed to list calendar events.");
+        });
+    });
 
-      async function checkLoginStatus() {
-        try {
-          const response = await fetch('https://forapideployment.onrender.com/auth/status');
-          if (response.ok) {
-            const data = await response.json();
-            if (data.loggedIn) {
-              loginStatus.style.display = 'block'; // Show login success message
-              fetchEventsButton.disabled = false; // Enable fetch events button
-            }
-          }
-        } catch (error) {
-          console.error('Error checking login status:', error);
-        }
-      }
-
-      // Fetch events functionality
-      fetchEventsButton.addEventListener('click', async function () {
-        try {
-          const response = await fetch('https://forapideployment.onrender.com/events');
-          if (response.ok) {
-            const events = await response.json();
-            displayEvents(events);
-          } else {
-            console.error('Error fetching events:', response.status);
-          }
-        } catch (error) {
-          console.error('Error fetching calendar events:', error);
-        }
-      });
-
-      function displayEvents(events) {
-        const eventsContainer = document.getElementById('task-display');
-        eventsContainer.innerHTML = ''; // Clear previous content
-
-        const header = document.createElement('h2');
-        header.textContent = 'Upcoming Events:';
-        eventsContainer.appendChild(header);
-
-        if (Array.isArray(events) && events.length > 0) {
-          const eventsList = document.createElement('ul');
-          events.forEach((event) => {
-            const eventItem = document.createElement('li');
-            eventItem.textContent = `${event.summary} - ${new Date(
-              event.start.dateTime || event.start.date
-            ).toLocaleString()}`;
-            eventsList.appendChild(eventItem);
-          });
-          eventsContainer.appendChild(eventsList);
-        } else {
-          eventsContainer.innerHTML = '<p>No upcoming events found.</p>';
-        }
-      }
+    // Redirect to the music page
+    document.getElementById("go-to-music").addEventListener("click", () => {
+      window.location.href = `${API_URL}/public/music.html`;
     });
   </script>
-
 </body>
 </html>

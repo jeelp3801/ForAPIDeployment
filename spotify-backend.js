@@ -13,7 +13,8 @@ const PORT = process.env.PORT || 3001;
 // Spotify API credentials
 const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
-const REDIRECT_URI = "https://forapideployment.onrender.com/callback";
+const REDIRECT_URI = "https://forapideployment.onrender.com/callback-spotify";
+
 let accessToken = "";
 
 // 1. Redirect to Spotify login
