@@ -3,10 +3,22 @@ const cors = require("cors");
 const axios = require("axios");
 const querystring = require("querystring");
 require("dotenv").config();
-
+const path = require('path');
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+
+// Serve static files from the "public" directory
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Your existing routes here...
+
+// Optional: Fallback to index.html for other routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'music.html'));
+});
+
 
 const PORT = process.env.PORT || 3001;
 
