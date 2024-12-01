@@ -3,6 +3,8 @@ const { google } = require('googleapis');
 const dotenv = require('dotenv');
 const path = require('path');
 const cors = require('cors');
+const googleBackend = require('./backend.js'); // Existing Google Calendar backend
+const spotifyBackend = require('./spotify-backend.js'); // Spotify backend
 
 dotenv.config(); // Load environment variables from .env file
 
@@ -11,24 +13,18 @@ const port = process.env.PORT || 3000; // Use environment-defined port
 
 // Enable CORS to allow frontend access to the API
 app.use(cors());
-const express = require('express');
-const googleBackend = require('./backend.js'); // Existing Google Calendar backend
-const spotifyBackend = require('./spotify-backend.js'); // Spotify backend
 
+// Integrate Google and Spotify backends
 app.use(googleBackend);
 app.use(spotifyBackend);
 
-app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
-});
-
 // Serve static files for the frontend
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public/index.html')); // Serve the main HTML file
-});
-
-// Use static directories for frontend assets (CSS, JS, images, etc.)
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Serve the main HTML file
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 // Set up OAuth2 client with credentials from .env
 const oauth2Client = new google.auth.OAuth2(

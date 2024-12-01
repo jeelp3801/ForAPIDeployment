@@ -34,7 +34,7 @@
 
       // Login with Google functionality
       loginButton.addEventListener('click', function () {
-        window.location.href = 'https://umi-fpky.onrender.com/auth/google'; // Redirect to OAuth flow
+        window.location.href = 'https://forapideployment.onrender.com/auth/google'; // Redirect to OAuth flow
       });
 
       // Check login status on page load
@@ -42,7 +42,7 @@
 
       async function checkLoginStatus() {
         try {
-          const response = await fetch('https://umi-fpky.onrender.com/auth/status');
+          const response = await fetch('https://forapideployment.onrender.com/auth/status');
           if (response.ok) {
             const data = await response.json();
             if (data.loggedIn) {
@@ -58,7 +58,7 @@
       // Fetch events functionality
       fetchEventsButton.addEventListener('click', async function () {
         try {
-          const response = await fetch('https://umi-fpky.onrender.com/events');
+          const response = await fetch('https://forapideployment.onrender.com/events');
           if (response.ok) {
             const events = await response.json();
             displayEvents(events);
