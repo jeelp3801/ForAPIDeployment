@@ -16,8 +16,16 @@
   <button id="fetchEvents" disabled>Fetch Google Calendar Events</button>
 
   <div id="task-display"></div>
-
+    <h1>Welcome to Google Calendar Sync</h1>
+    <button id="musicButton">Go to Spotify Music</button>
+    
+  </body>
+  
   <script>
+      document.getElementById('musicButton').addEventListener('click', () => {
+        window.location.href = 'music-page.html';
+      });
+    
     document.addEventListener('DOMContentLoaded', function () {
       const loginButton = document.getElementById('loginButton');
       const fetchEventsButton = document.getElementById('fetchEvents');
