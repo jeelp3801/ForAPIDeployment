@@ -13,7 +13,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Your existing routes here...
 
 // Optional: Fallback to index.html for other routes
-app.get('*', (req, res) => {
+app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 const PORT = process.env.PORT || 3002;
@@ -35,20 +35,23 @@ app.get("/authorize-calendar", (req, res) => {
   res.redirect(authUrl);
 });
 
-// 2. Handle Google OAuth2 callback
-app.get("/callback-calendar", async (req, res) => {
+app.get('/callback-calendar', async (req, res) => {
+  console.log('Callback received:', req.query); // Log the query parameters to ensure the route is hit
   const code = req.query.code;
-  if (!code) return res.status(400).send("No authorization code provided.");
-
-  try {
-    const { tokens } = await oauth2Client.getToken(code);
-    oauth2Client.setCredentials(tokens);
-    res.send("Authorization successful! You can now fetch events.");
-  } catch (error) {
-    console.error("Error exchanging code for tokens:", error.response?.data || error);
-    res.status(500).send("Failed to authorize.");
+  if (code) {
+    try {
+      const { tokens } = await oauth2Client.getToken(code);
+      oauth2Client.setCredentials(tokens);
+      res.send('Authorization successful!');
+    } catch (error) {
+      console.error('Error during OAuth callback:', error);
+      res.send('Error during authorization.');
+    }
+  } else {
+    res.send('No authorization code found.');
   }
 });
+
 
 // 3. List Google Calendar events
 app.get("/list-events", async (req, res) => {

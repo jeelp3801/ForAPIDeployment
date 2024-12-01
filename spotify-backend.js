@@ -15,9 +15,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Your existing routes here...
 
 // Optional: Fallback to index.html for other routes
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'music.html'));
+app.get('/music', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'music.html'));  // Adjust based on your file structure
 });
+
 
 
 const PORT = process.env.PORT || 3001;
