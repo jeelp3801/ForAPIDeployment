@@ -43,7 +43,7 @@ app.get("/login", (req, res) => {
 });
 
 // 2. Handle Spotify callback and exchange code for access token
-app.get("/callback", async (req, res) => {
+app.get("/callback-spotify", async (req, res) => {
   const code = req.query.code || null;
   try {
     const response = await axios.post(
