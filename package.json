@@ -1,19 +1,21 @@
 {
-  "name": "forapideployment",
-  "version": "1.0.0",
-  "main": "backend.js",
-  "scripts": {
-    "start": "node backend.js"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
+    "@microsoft/microsoft-graph-client": "^3.0.7",
+    "axios": "^1.7.7",
     "cors": "^2.8.5",
-    "dotenv": "^8.6.0",
+    "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "googleapis": "^144.0.0",
-    "request": "^2.88.2"
+    "open": "^10.1.0",
+    "set-function-length": "^1.2.2"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0",
+    "nodemon": "^3.1.7"
+  },
+  "scripts": {
+    "start:backend": "node backend.js",
+    "start:spotify": "node spotify-backend.js",
+    "start": "concurrently \"PORT=3000 npm run start:backend\" \"PORT=3001 npm run start:spotify\""
   }
 }
