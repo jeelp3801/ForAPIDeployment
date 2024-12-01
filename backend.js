@@ -16,6 +16,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
+// In spotify-backend.js or your main backend file
+app.get('/login', (req, res) => {
+  // You can either display a login page or start the Spotify OAuth process here
+  res.send('Login to Spotify');
+});
+
 const PORT = process.env.PORT || 3002;
 
 // Google OAuth2 client setup
@@ -25,6 +31,20 @@ const oauth2Client = new google.auth.OAuth2(
   "https://forapideployment.onrender.com/callback-calendar"
 );
 
+
+// Spotify credentials
+const SP_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
+const SP_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
+const SP_REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI;
+
+// Spotify authorization URL
+const AUTH_URL = `https://accounts.spotify.com/authorize?client_id=${SP_CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(SP_REDIRECT_URI)}&scope=user-library-read user-read-private`;
+
+// Route to start Spotify login
+app.get('/login', (req, res) => {
+  // Redirect user to Spotify's authorization page
+  res.redirect(AUTH_URL);
+});
 // 1. Redirect to Google authorization
 app.get("/authorize-calendar", (req, res) => {
   const scopes = ["https://www.googleapis.com/auth/calendar.readonly"];
